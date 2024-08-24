@@ -1,135 +1,145 @@
-import mysql.connector
 from datetime import datetime
+import mysql.connector
+from tkinter import *
+from tkinter import messagebox, ttk
 
-class BancoDeDados:
-    def __init__(self, host='localhost', user='seu_usuario', password='sua_senha', database='mercado'):
-        self.conn = mysql.connector.connect(
-            host=host,
-            user=user,
-            password=password,
-            database=database
-        )
-        self.cursor = self.conn.cursor()
-        self.criar_tabelas()
+# Funções CRUD
 
-    def criar_tabelas(self):
-        self.cursor.execute('''
-            CREATE TABLE IF NOT EXISTS Produto (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                nome VARCHAR(255) NOT NULL,
-                preco DECIMAL(10, 2) NOT NULL,
-                quantidade INT NOT NULL,
-                codigo VARCHAR(100) NOT NULL UNIQUE
-            )
-        ''')
-        self.cursor.execute('''
-            CREATE TABLE IF NOT EXISTS Cliente (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                nome VARCHAR(255) NOT NULL,
-                cpf VARCHAR(11) NOT NULL UNIQUE,
-                email VARCHAR(255),
-                telefone VARCHAR(20)
-            )
-        ''')
-        self.cursor.execute('''
-            CREATE TABLE IF NOT EXISTS Venda (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                produto_id INT,
-                cliente_id INT,
-                quantidade INT NOT NULL,
-                data DATETIME NOT NULL,
-                FOREIGN KEY (produto_id) REFERENCES Produto(id),
-                FOREIGN KEY (cliente_id) REFERENCES Cliente(id)
-            )
-        ''')
-        self.conn.commit()
+def create_product():
+    name = name_entry.get()
+    price = price_entry.get()
+    quantity = quantity_entry.get()
+    code = code_entry.get()
 
-    def fechar_conexao(self):
-        self.cursor.close()
-        self.conn.close()
+    if name and price and quantity and code:
+        command = 'INSERT INTO product (product_name, price, quantity, code) VALUES (%s, %s, %s, %s)'
+        values = (name, float(price), int(quantity), code)
+        cursor.execute(command, values)
+        connection.commit()
+        list_products()
+        clear_entries()
+        messagebox.showinfo("Sucesso", "Produto adicionado com sucesso!")
+    else:
+        messagebox.showerror("Erro", "Todos os campos são obrigatórios!")
 
-class Produto:
-    def __init__(self, nome, preco, quantidade, codigo):
-        self.nome = nome
-        self.preco = preco
-        self.quantidade = quantidade
-        self.codigo = codigo
+def list_products():
+    cursor.execute("SELECT * FROM product")
+    records = cursor.fetchall()
+    for row in tree.get_children():
+        tree.delete(row)
+    for record in records:
+        tree.insert("", "end", values=record)
 
-    def salvar(self, db):
-        sql = '''
-        INSERT INTO Produto (nome, preco, quantidade, codigo)
-        VALUES (%s, %s, %s, %s)
-        '''
-        valores = (self.nome, self.preco, self.quantidade, self.codigo)
-        db.cursor.execute(sql, valores)
-        db.conn.commit()
+def update_product():
+    try:
+        selected_item = tree.selection()[0]
+        id_product = tree.item(selected_item)['values'][0]
 
-    def __str__(self):
-        return f'Produto: {self.nome}, Preço: R${self.preco}, Quantidade: {self.quantidade}, Código: {self.codigo}'
+        new_name = name_entry.get()
+        new_price = price_entry.get()
+        new_quantity = quantity_entry.get()
+        new_code = code_entry.get()
 
-class Cliente:
-    def __init__(self, nome, cpf, email, telefone):
-        self.nome = nome
-        self.cpf = cpf
-        self.email = email
-        self.telefone = telefone
+        command = 'UPDATE product SET product_name = %s, price = %s, quantity = %s, code = %s WHERE id_product = %s'
+        values = (new_name, float(new_price), int(new_quantity), new_code, id_product)
+        cursor.execute(command, values)
+        connection.commit()
+        list_products()
+        clear_entries()
+        messagebox.showinfo("Sucesso", "Produto atualizado com sucesso!")
+    except IndexError:
+        messagebox.showerror("Erro", "Selecione um produto para atualizar!")
 
-    def salvar(self, db):
-        sql = '''
-        INSERT INTO Cliente (nome, cpf, email, telefone)
-        VALUES (%s, %s, %s, %s)
-        '''
-        valores = (self.nome, self.cpf, self.email, self.telefone)
-        db.cursor.execute(sql, valores)
-        db.conn.commit()
+def delete_product():
+    try:
+        selected_item = tree.selection()[0]
+        id_product = tree.item(selected_item)['values'][0]
 
-    def __str__(self):
-        return f'Cliente: {self.nome}, CPF: {self.cpf}, Email: {self.email}, Telefone: {self.telefone}'
+        command = 'DELETE FROM product WHERE id_product = %s'
+        cursor.execute(command, (id_product,))
+        connection.commit()
+        list_products()
+        clear_entries()
+        messagebox.showinfo("Sucesso", "Produto excluído com sucesso!")
+    except IndexError:
+        messagebox.showerror("Erro", "Selecione um produto para excluir!")
 
-class Venda:
-    def __init__(self, produto_id, cliente_id, quantidade):
-        self.produto_id = produto_id
-        self.cliente_id = cliente_id
-        self.quantidade = quantidade
-        self.data = datetime.now()
+def clear_entries():
+    name_entry.delete(0, END)
+    price_entry.delete(0, END)
+    quantity_entry.delete(0, END)
+    code_entry.delete(0, END)
 
-    def salvar(self, db):
-        sql = '''
-        INSERT INTO Venda (produto_id, cliente_id, quantidade, data)
-        VALUES (%s, %s, %s, %s)
-        '''
-        valores = (self.produto_id, self.cliente_id, self.quantidade, self.data)
-        db.cursor.execute(sql, valores)
-        db.conn.commit()
+def fill_entries(event):
+    selected_item = tree.selection()[0]
+    values = tree.item(selected_item, "values")
+    
+    clear_entries()
+    name_entry.insert(0, values[1])
+    price_entry.insert(0, values[2])
+    quantity_entry.insert(0, values[3])
+    code_entry.insert(0, values[4])
 
-    def __str__(self):
-        return (f'Venda: Produto ID: {self.produto_id}, Cliente ID: {self.cliente_id}, '
-                f'Quantidade: {self.quantidade}, Data: {self.data}')
+# Interface gráfica
 
-class GerenciadorCRUD:
-    def __init__(self, db):
-        self.db = db
+def product_window():
+    main_window = Tk()
+    main_window.title("Products")
+    main_window.geometry("800x600")
 
-    def inserir_produto(self, produto):
-        produto.salvar(self.db)
+    # Labels e Entradas
+    Label(main_window, text="Nome do produto:").grid(column=0, row=0, padx=20, pady=10)
+    global name_entry
+    name_entry = Entry(main_window)
+    name_entry.grid(column=1, row=0, padx=20, pady=10)
 
-    def inserir_cliente(self, cliente):
-        cliente.salvar(self.db)
+    Label(main_window, text="Preço:").grid(column=0, row=1, padx=20, pady=10)
+    global price_entry
+    price_entry = Entry(main_window)
+    price_entry.grid(column=1, row=1, padx=20, pady=10)
 
-    def inserir_venda(self, venda):
-        venda.salvar(self.db)
+    Label(main_window, text="Quantidade:").grid(column=0, row=2, padx=20, pady=10)
+    global quantity_entry
+    quantity_entry = Entry(main_window)
+    quantity_entry.grid(column=1, row=2, padx=20, pady=10)
 
-    def listar_produtos(self):
-        self.db.cursor.execute("SELECT * FROM Produto")
-        return self.db.cursor.fetchall()
+    Label(main_window, text="Código de barras:").grid(column=0, row=3, padx=20, pady=10)
+    global code_entry
+    code_entry = Entry(main_window)
+    code_entry.grid(column=1, row=3, padx=20, pady=10)
 
-    def listar_clientes(self):
-        self.db.cursor.execute("SELECT * FROM Cliente")
-        return self.db.cursor.fetchall()
+    # Botões
+    Button(main_window, text="Adicionar produto", command=create_product).grid(column=0, row=4, padx=20, pady=20)
+    Button(main_window, text="Atualizar produto", command=update_product).grid(column=1, row=4, padx=20, pady=20)
+    Button(main_window, text="Excluir produto", command=delete_product).grid(column=2, row=4, padx=20, pady=20)
+    Button(main_window, text="Limpar campos", command=clear_entries).grid(column=3, row=4, padx=20, pady=20)
 
-    def listar_vendas(self):
-        self.db.cursor.execute("SELECT * FROM Venda")
-        return self.db.cursor.fetchall()
+    # Tabela de Produtos
+    global tree
+    columns = ("ID", "Nome", "Preço", "Quantidade", "Código de Barras")
+    tree = ttk.Treeview(main_window, columns=columns, show="headings")
+    for col in columns:
+        tree.heading(col, text=col)
+        tree.grid(row=5, column=0, columnspan=4, padx=20, pady=20, sticky='nsew')
+    tree.bind('<Double-1>', fill_entries)
 
-    def fechar(self):
-        self.db.fechar_conexao()
+    list_products()
+
+    main_window.mainloop()
+
+# Conexão com o banco de dados
+connection = mysql.connector.connect(
+    host='localhost',
+    user='root',
+    password='$m31T4p@5w0rD#',
+    database='mercadinho'
+)
+
+cursor = connection.cursor()
+
+# Executar a interface gráfica
+product_window()
+
+# Fechar conexão ao encerrar
+cursor.close()
+connection.close()
