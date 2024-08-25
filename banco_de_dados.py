@@ -131,7 +131,7 @@ def product_window():
 connection = mysql.connector.connect(
     host='localhost',
     user='root',
-    password='$m31T4p@5w0rD#',
+    password='password',
     database='mercadinho'
 )
 
