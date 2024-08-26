@@ -7,10 +7,10 @@ from tkinter import messagebox, ttk
 # Funções CRUD
 def create_product():
     name = name_entry.get()
-    purchase_price = purchase_price_entry.get()
-    sale_price = sale_price_entry.get()
     quantity = quantity_entry.get()
     code = code_entry.get()
+    purchase_price = purchase_price_entry.get()
+    sale_price = sale_price_entry.get()
 
     if name and purchase_price and sale_price and quantity and code:
         command = 'INSERT INTO product (product_name, quantity, code, purchase_price, sale_price) VALUES (%s, %s, %s, %s, %s)'
@@ -161,24 +161,24 @@ def product_window():
     name_entry.grid(column=1, row=0, padx=10, pady=5, sticky='ew')
 
     Label(main_window, text="Quantidade:", bg='#f5f5f5', font=('Arial', 12)).grid(column=0, row=1, padx=10, pady=5, sticky='e')
-    global purchase_price_entry
-    purchase_price_entry = Entry(main_window, font=('Arial', 12), relief=FLAT, bd=2)
-    purchase_price_entry.grid(column=1, row=1, padx=10, pady=5, sticky='ew')
-
-    Label(main_window, text="Código de barras:", bg='#f5f5f5', font=('Arial', 12)).grid(column=0, row=2, padx=10, pady=5, sticky='e')
-    global sale_price_entry
-    sale_price_entry = Entry(main_window, font=('Arial', 12), relief=FLAT, bd=2)
-    sale_price_entry.grid(column=1, row=2, padx=10, pady=5, sticky='ew')
-
-    Label(main_window, text="Preço de Compra:", bg='#f5f5f5', font=('Arial', 12)).grid(column=0, row=3, padx=10, pady=5, sticky='e')
     global quantity_entry
     quantity_entry = Entry(main_window, font=('Arial', 12), relief=FLAT, bd=2)
-    quantity_entry.grid(column=1, row=3, padx=10, pady=5, sticky='ew')
+    quantity_entry.grid(column=1, row=1, padx=10, pady=5, sticky='ew')
 
-    Label(main_window, text="Preço de Venda:", bg='#f5f5f5', font=('Arial', 12)).grid(column=0, row=4, padx=10, pady=5, sticky='e')
+    Label(main_window, text="Código de barras:", bg='#f5f5f5', font=('Arial', 12)).grid(column=0, row=2, padx=10, pady=5, sticky='e')
     global code_entry
     code_entry = Entry(main_window, font=('Arial', 12), relief=FLAT, bd=2)
-    code_entry.grid(column=1, row=4, padx=10, pady=5, sticky='ew')
+    code_entry.grid(column=1, row=2, padx=10, pady=5, sticky='ew')
+
+    Label(main_window, text="Preço de Compra:", bg='#f5f5f5', font=('Arial', 12)).grid(column=0, row=3, padx=10, pady=5, sticky='e')
+    global purchase_price_entry
+    purchase_price_entry = Entry(main_window, font=('Arial', 12), relief=FLAT, bd=2)
+    purchase_price_entry.grid(column=1, row=3, padx=10, pady=5, sticky='ew')
+
+    Label(main_window, text="Preço de Venda:", bg='#f5f5f5', font=('Arial', 12)).grid(column=0, row=4, padx=10, pady=5, sticky='e')
+    global sale_price_entry
+    sale_price_entry = Entry(main_window, font=('Arial', 12), relief=FLAT, bd=2)
+    sale_price_entry.grid(column=1, row=4, padx=10, pady=5, sticky='ew')
 
     # Botões CRUD
     Button(main_window, text="Adicionar produto", command=create_product, font=('Arial', 10), bg='#4caf50', fg='white', relief=FLAT).grid(column=1, row=5, padx=5, pady=10)
@@ -199,10 +199,10 @@ def product_window():
     tree = ttk.Treeview(main_window, columns=('ID', 'Nome', 'Quantidade', 'Código de Barras', 'Preço de Compra', 'Preço de Venda'), show='headings')
     tree.heading('ID', text='ID')
     tree.heading('Nome', text='Nome')
-    tree.heading('Preço de Compra', text='Preço de Compra')
-    tree.heading('Preço de Venda', text='Preço de Venda')
     tree.heading('Quantidade', text='Quantidade')
     tree.heading('Código de Barras', text='Código de Barras')
+    tree.heading('Preço de Compra', text='Preço de Compra')
+    tree.heading('Preço de Venda', text='Preço de Venda')
     tree.grid(column=0, row=8, columnspan=3, padx=10, pady=5, sticky='nsew')
 
     tree.bind("<<TreeviewSelect>>", fill_entries)
