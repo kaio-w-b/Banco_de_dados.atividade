@@ -53,30 +53,31 @@ def update_product_window():
             sub_window = Toplevel()
             sub_window.title("Atualizar Produto")
             sub_window.geometry("400x300")
+            sub_window.configure(bg='#f5f5f5')
 
             # Campos para atualizar o produto
-            Label(sub_window, text="Nome do produto:").grid(column=0, row=0, padx=10, pady=5, sticky='e')
-            update_name_entry = Entry(sub_window)
+            Label(sub_window, text="Nome do produto:", bg='#f5f5f5', font=('Arial', 12)).grid(column=0, row=0, padx=10, pady=5, sticky='e')
+            update_name_entry = Entry(sub_window, font=('Arial', 12), relief=FLAT, bd=2)
             update_name_entry.grid(column=1, row=0, padx=10, pady=5, sticky='ew')
             update_name_entry.insert(0, values[1])
 
-            Label(sub_window, text="Quantidade:").grid(column=0, row=1, padx=10, pady=5, sticky='e')
-            update_purchase_price_entry = Entry(sub_window)
+            Label(sub_window, text="Quantidade:", bg='#f5f5f5', font=('Arial', 12)).grid(column=0, row=1, padx=10, pady=5, sticky='e')
+            update_purchase_price_entry = Entry(sub_window, font=('Arial', 12), relief=FLAT, bd=2)
             update_purchase_price_entry.grid(column=1, row=1, padx=10, pady=5, sticky='ew')
             update_purchase_price_entry.insert(0, values[2])
 
-            Label(sub_window, text="Código de barras:").grid(column=0, row=2, padx=10, pady=5, sticky='e')
-            update_sale_price_entry = Entry(sub_window)
+            Label(sub_window, text="Código de barras:", bg='#f5f5f5', font=('Arial', 12)).grid(column=0, row=2, padx=10, pady=5, sticky='e')
+            update_sale_price_entry = Entry(sub_window, font=('Arial', 12), relief=FLAT, bd=2)
             update_sale_price_entry.grid(column=1, row=2, padx=10, pady=5, sticky='ew')
             update_sale_price_entry.insert(0, values[3])
 
-            Label(sub_window, text="Preço de Compra:").grid(column=0, row=3, padx=10, pady=5, sticky='e')
-            update_quantity_entry = Entry(sub_window)
+            Label(sub_window, text="Preço de Compra:", bg='#f5f5f5', font=('Arial', 12)).grid(column=0, row=3, padx=10, pady=5, sticky='e')
+            update_quantity_entry = Entry(sub_window, font=('Arial', 12), relief=FLAT, bd=2)
             update_quantity_entry.grid(column=1, row=3, padx=10, pady=5, sticky='ew')
             update_quantity_entry.insert(0, values[4])
 
-            Label(sub_window, text="Preço de Venda:").grid(column=0, row=4, padx=10, pady=5, sticky='e')
-            update_code_entry = Entry(sub_window)
+            Label(sub_window, text="Preço de Venda:", bg='#f5f5f5', font=('Arial', 12)).grid(column=0, row=4, padx=10, pady=5, sticky='e')
+            update_code_entry = Entry(sub_window, font=('Arial', 12), relief=FLAT, bd=2)
             update_code_entry.grid(column=1, row=4, padx=10, pady=5, sticky='ew')
             update_code_entry.insert(0, values[5])
 
@@ -90,13 +91,13 @@ def update_product_window():
                 id_product = values[0]
 
                 command = 'UPDATE product SET product_name = %s, purchase_price = %s, sale_price = %s, quantity = %s, code = %s WHERE id_product = %s'
-                cursor.execute(command, (new_name, Decimal(new_purchase_price), Decimal(new_sale_price), int(new_quantity), new_code, id_product))
+                cursor.execute(command, (new_name,int(new_quantity), Decimal(new_purchase_price), Decimal(new_sale_price), new_code, id_product))
                 connection.commit()
                 list_products()
                 sub_window.destroy()
                 messagebox.showinfo("Sucesso", "Produto atualizado com sucesso!")
 
-            Button(sub_window, text="Atualizar produto", command=update_product).grid(column=1, row=5, padx=5, pady=20)
+            Button(sub_window, text="Atualizar produto", command=update_product, font=('Arial', 10), bg='#4caf50', fg='White', relief=FLAT).grid(column=0, row=5, padx=5, pady=20, sticky='e')
 
             sub_window.mainloop()
 
@@ -104,6 +105,7 @@ def update_product_window():
         messagebox.showerror("Erro", "Selecione um produto para atualizar!")
     except Exception as e:
         messagebox.showerror("Erro", f"Erro inesperado: {e}")
+
 
 def delete_product():
     try:
@@ -136,14 +138,6 @@ def fill_entries(event):
     sale_price_entry.insert(0, values[3])
     quantity_entry.insert(0, values[4])
     code_entry.insert(0, values[5])
-
-from decimal import Decimal
-from datetime import datetime
-import mysql.connector
-from tkinter import *
-from tkinter import messagebox, ttk
-
-# Funções CRUD (mesmas funções)
 
 # Interface gráfica
 def product_window():
@@ -223,7 +217,7 @@ def product_window():
 connection = mysql.connector.connect(
     host="localhost",
     user="root",
-    password="s3gUr@MySQL!2024",
+    password="sua_senha",
     database="mercadinho"
 )
 cursor = connection.cursor()
