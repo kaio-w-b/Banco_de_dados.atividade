@@ -6,8 +6,8 @@ def init_connection(action='connect', db_connection=None):
         db_connection = mysql.connector.connect(
             host='localhost',
             user='root',
-            password='$m31T4p@5w0rD#',
-            database='mercadinho'
+            password='your_password',
+            database='your_database'
         )
         print("Conexão estabelecida com o banco de dados.")
         return db_connection
