@@ -59,7 +59,7 @@ def delete_product(tree, clear_entries_callback):
         selected_item = tree.selection()[0]
         id_product = tree.item(selected_item)['values'][0]
 
-        command = 'DELETE FROM product WHERE id_product = %s'
+        command = 'DELETE FROM client WHERE id_product = %s'
         cursor.execute(command, (id_product,))
         connection.commit()
         list_products(tree)
