@@ -4,7 +4,7 @@ from crud_client_operations import create_clients, search_client, list_clients, 
 
 def client_window():
     main_window = Tk()
-    main_window.title("Clients")
+    main_window.title("Clientes")
     main_window.geometry("1700x700")
     main_window.configure(bg='#f5f5f5')  # Fundo da janela principal
 
@@ -87,7 +87,7 @@ def client_window():
                 # Criar uma nova janela para a atualização
                 sub_window = Toplevel()
                 sub_window.title("Atualizar Cliente")
-                sub_window.geometry("400x400")
+                sub_window.geometry("500x400")
                 sub_window.configure(bg='#f5f5f5')
 
                 # Campos para atualizar as informações do cliente
@@ -191,5 +191,3 @@ def client_window():
     main_window.mainloop()
 
 
-
-client_window()
