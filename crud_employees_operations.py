@@ -8,38 +8,67 @@ connection = init_connection()
 cursor = connection.cursor()
 
 # Função para criar o employees, garantindo que o CPF exista na tabela 'person'
-def create_employees(id_employees, cpf, cargo, senha):
+def create_employees(cpf, cargo, senha):
     try:
         # Verificar se o CPF existe na tabela 'person'
         cursor.execute("SELECT CPF FROM person WHERE CPF = %s", (cpf,))
         person = cursor.fetchone()
 
         if person:
-            comand = 'INSERT INTO employees (Id_employees, CPF, cargo, senha) VALUES (%s, %s, %s, %s)'
-            values = (id_employees, cpf, cargo, senha)
+            comand = 'INSERT INTO employees (CPF, position, password) VALUES (%s, %s, %s)'
+            values = (cpf, cargo, senha)
             cursor.execute(comand, values)
             connection.commit()
-            print(f"Employees {id_employees} criado com sucesso!")
+            print(f"Employees {cpf} criado com sucesso!")
         else:
             print(f"Erro: CPF {cpf} não encontrado. Employees não será criado.")
     except Exception as e:
         print(f"Erro ao criar employees: {str(e)}")
 
 # Ver as informações do employees
-def read_employees(id_employees):
-    try:
-        comand = '''
-        SELECT e.Id_employees, e.CPF, p.Nome, e.Cargo, e.senha, p.Email, p.Telefone 
+def list_employeers(tree):
+    # Consulta que realiza o JOIN entre as tabelas
+    command = '''
+        SELECT e.id_employees, p.name, e.CPF, p.Email, p.Telefone, 
+               e.position, e.password 
         FROM employees e 
-        INNER JOIN person p ON e.CPF = p.CPF 
-        WHERE e.Id_employees = %s
+        LEFT JOIN person p ON e.cpf = p.cpf
+    '''
+    cursor.execute(command)
+    records = cursor.fetchall()
+    
+    # Limpa a Treeview antes de inserir novos dados
+    for row in tree.get_children():
+        tree.delete(row)
+    
+    # Insere os registros na Treeview
+    for record in records:
+        tree.insert("", "end", values=record)
+
+def search_employeer(search_term, tree):
+    # Limpar a Treeview antes de realizar a pesquisa
+    for row in tree.get_children():
+        tree.delete(row)
+    
+    if search_term:
+        command = '''
+            SELECT e.id_employees, p.name, c.CPF, p.Email, p.Telefone, 
+                    e.position, e.password 
+            FROM employees e
+            LEFT JOIN person p ON e.CPF = p.CPF 
+            WHERE p.Name LIKE %s OR e.CPF LIKE %s
         '''
-        cursor.execute(comand, (id_employees,))
-        result = cursor.fetchone()
-        return result
-    except Exception as e:
-        print(f"Erro ao buscar employees: {str(e)}")
-        return None
+        cursor.execute(command, ('%' + search_term + '%', '%' + search_term + '%'))
+        records = cursor.fetchall()
+        
+        if records:  # Verifique se há registros retornados
+            for record in records:
+                tree.insert("", "end", values=record)
+        else:
+            print("Nenhum registro encontrado.")  # Mensagem de depuração
+            
+    else:
+        list_employeers(tree)
 
 # Atualizar os dados do employees 
 def update_employees(id_employees, cpf, cargo, senha):
@@ -49,7 +78,7 @@ def update_employees(id_employees, cpf, cargo, senha):
         person = cursor.fetchone()
 
         if person:
-            comand = 'UPDATE employees SET Cargo = %s, senha = %s WHERE Id_employees = %s'
+            comand = 'UPDATE employees SET position = %s, password = %s WHERE Id_employees = %s'
             values = (cargo, senha, id_employees)
             cursor.execute(comand, values)
             connection.commit()
@@ -60,17 +89,22 @@ def update_employees(id_employees, cpf, cargo, senha):
         print(f"Erro ao atualizar employees: {str(e)}")
 
 # Deletar um employees
-def delete_employees(id_employees):
+def delete_employees(tree, clear_entries_callback):
     try:
-        comand = 'DELETE FROM employees WHERE Id_employees = %s'
-        cursor.execute(comand, (id_employees,))
+        selected_item = tree.selection()[0]
+        id_employeer = tree.item(selected_item)['values'][0]
+
+        command = 'DELETE FROM employees WHERE id_employees = %s'
+        cursor.execute(command, (id_employeer,))
         connection.commit()
-        print(f"Employees {id_employees} deletado com sucesso!")
-    except Exception as e:
-        print(f"Erro ao deletar employees: {str(e)}")
+        list_employeers(tree)
+        clear_entries_callback()
+        messagebox.showinfo("Sucesso", "funcionario excluído com sucesso!")
+    except IndexError:
+        messagebox.showerror("Erro", "Selecione um funcionario para excluir!")
 
 # Função para criar uma pessoa e um employees ao mesmo tempo
-def create_employeer(id_employees, cpf, nome, email, telefone, cargo, senha):
+def create_employeers(cpf, nome, email, telefone, position, password):
     try:
         # Verificar se o CPF já existe na tabela 'person'
         cursor.execute("SELECT CPF FROM person WHERE CPF = %s", (cpf,))
@@ -83,11 +117,11 @@ def create_employeer(id_employees, cpf, nome, email, telefone, cargo, senha):
             create_person(cpf, nome, email, telefone)
             print(f"Pessoa com CPF {cpf} criada com sucesso.")
 
-        # Depois, criar o employees vinculado à pessoa existente ou recém-criada
-        create_employees(id_employees, cpf, cargo, senha)
+        # Depois, criar o employeer vinculado à pessoa existente ou recém-criada
+        create_employees( cpf, position, password)
         
     except Exception as e:
-        print(f"Erro ao criar pessoa e employees: {str(e)}")
+        print(f"Erro ao criar pessoa e client: {str(e)}")
 
 # Fechar conexão ao encerrar o script
 def close_connection():
