@@ -25,12 +25,22 @@ def create_client(cpf, OnePieceFan, IsFlamengo, DeSousa):
     except Exception as e:
         print(f"Erro ao criar client: {str(e)}")
 
-# Função para listar produtos
 def list_clients(tree):
-    cursor.execute("SELECT * FROM client")
+    # Consulta que realiza o JOIN entre as tabelas
+    command = '''
+        SELECT c.id_client, p.name, c.CPF, p.Email, p.Telefone, 
+               c.OnePieceFan, c.IsFlamengo, c.DeSousa 
+        FROM client c 
+        LEFT JOIN person p ON c.cpf = p.cpf
+    '''
+    cursor.execute(command)
     records = cursor.fetchall()
+    
+    # Limpa a Treeview antes de inserir novos dados
     for row in tree.get_children():
         tree.delete(row)
+    
+    # Insere os registros na Treeview
     for record in records:
         tree.insert("", "end", values=record)
 
@@ -42,10 +52,11 @@ def search_client(search_term, tree):
     
     if search_term:
         command = '''
-            SELECT p.ID, p.Nome, p.CPF, p.Email, p.Telefone, c.FanDeOnePiece, c.Flamenguista, c.DeSousa 
-            FROM client c 
+            SELECT c.id_client, p.name, c.CPF, p.Email, p.Telefone, 
+                    c.OnePieceFan, c.IsFlamengo, c.DeSousa 
+            FROM client c
             LEFT JOIN person p ON c.CPF = p.CPF 
-            WHERE c.Nome LIKE %s OR c.CPF LIKE %s
+            WHERE p.Name LIKE %s OR c.CPF LIKE %s
         '''
         cursor.execute(command, ('%' + search_term + '%', '%' + search_term + '%'))
         records = cursor.fetchall()
@@ -80,14 +91,14 @@ def update_client(id_client, cpf, OPFan, IsFlamengo, DeSousa):
 def delete_client(tree, clear_entries_callback):
     try:
         selected_item = tree.selection()[0]
-        id_product = tree.item(selected_item)['values'][0]
+        id_client = tree.item(selected_item)['values'][0]
 
-        command = 'DELETE FROM product WHERE id_client = %s'
-        cursor.execute(command, (id_product,))
+        command = 'DELETE FROM client WHERE id_client = %s'
+        cursor.execute(command, (id_client,))
         connection.commit()
         list_clients(tree)
         clear_entries_callback()
-        messagebox.showinfo("Sucesso", "Cliente excluído com sucesso!")
+        messagebox.showinfo("Sucesso", "cliente excluído com sucesso!")
     except IndexError:
         messagebox.showerror("Erro", "Selecione um cliente para excluir!")
 
