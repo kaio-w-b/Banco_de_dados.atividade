@@ -89,7 +89,7 @@ def update_client(id_client, name, cpf, email, telefone, OPFan, IsFlamengo, DeSo
         else:
             print(f"Erro: CPF {cpf} não encontrado. Client não atualizado.")
     except Exception as e:
-        print(f"Erro ao atualizar client: {str(e)}")
+        print(f"Erro ao atualizar client: {str(e)}")
 
 # Deletar um client
 def delete_client(tree, clear_entries_callback):
