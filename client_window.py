@@ -143,7 +143,7 @@ def client_window():
                     new_de_sousa = update_de_sousa_var.get()
                     client_id = values[0]
                     # Chamar a função de atualização do cliente
-                    update_client(client_id, new_name, new_cpf, new_email, new_phone, new_one_piece_fan, new_flamenguista, new_de_sousa, tree, sub_window)
+                    update_client(client_id, new_name, new_cpf, new_email, new_phone, new_one_piece_fan, new_flamenguista, new_de_sousa)
                     list_clients(tree)  # Refresh the list
 
 
