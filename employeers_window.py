@@ -121,7 +121,7 @@ def employees_window():
                     new_senha = update_senha_entry.get()
                     employee_id = values[0]
                     # Chamar a função de atualização do Funcionario
-                    update_employees(employee_id, new_name, new_cpf, new_email, new_phone, new_cargo, new_senha, tree, sub_window)
+                    update_employees(employee_id, new_name, new_cpf, new_email, new_phone, new_cargo, new_senha)
                     list_employeers(tree)  # Refresh the list
 
 
