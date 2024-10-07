@@ -71,22 +71,26 @@ def search_employeer(search_term, tree):
         list_employeers(tree)
 
 # Atualizar os dados do employees 
-def update_employees(id_employees, cpf, cargo, senha):
+def update_employees(id, name, cpf, email, telefone, position, password):
+    
     try:
-        # Verificar se o CPF do employees existe na tabela 'person'
+        # Verificar se o CPF do client existe na tabela 'person'
         cursor.execute("SELECT CPF FROM person WHERE CPF = %s", (cpf,))
         person = cursor.fetchone()
 
         if person:
-            comand = 'UPDATE employees SET position = %s, password = %s WHERE Id_employees = %s'
-            values = (cargo, senha, id_employees)
+            comand = 'UPDATE employees SET position = %s, password = %s WHERE id_employees = %s'
+            values = (position, password, id)
+            comand2 = 'UPDATE person SET Name = %s, Email = %s, Telefone = %s WHERE CPF = %s'
+            values2 = (name, email, telefone, cpf)
             cursor.execute(comand, values)
+            cursor.execute(comand2, values2)
             connection.commit()
             print("Atualização realizada com sucesso!")
         else:
-            print(f"Erro: CPF {cpf} não encontrado. Employees não atualizado.")
+            print(f"Erro: CPF {cpf} não encontrado. Client não atualizado.")
     except Exception as e:
-        print(f"Erro ao atualizar employees: {str(e)}")
+        print(f"Erro ao atualizar client: {str(e)}")
 
 # Deletar um employees
 def delete_employees(tree, clear_entries_callback):
