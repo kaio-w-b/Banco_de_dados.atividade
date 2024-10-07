@@ -70,7 +70,8 @@ def search_client(search_term, tree):
     else:
         list_clients(tree)
 # Atualizar os dados do client 
-def update_client(id_client, cpf, OPFan, IsFlamengo, DeSousa):
+def update_client(id_client, name, cpf, email, telefone, OPFan, IsFlamengo, DeSousa):
+    
     try:
         # Verificar se o CPF do client existe na tabela 'person'
         cursor.execute("SELECT CPF FROM person WHERE CPF = %s", (cpf,))
@@ -79,13 +80,16 @@ def update_client(id_client, cpf, OPFan, IsFlamengo, DeSousa):
         if person:
             comand = 'UPDATE client SET OnePieceFan = %s, IsFlamengo = %s, DeSousa = %s WHERE Id_client = %s'
             values = (OPFan, IsFlamengo, DeSousa, id_client)
+            comand2 = 'UPDATE person SET Name = %s, Email = %s, Telefone = %s WHERE CPF = %s'
+            values2 = (name, email, telefone, cpf)
             cursor.execute(comand, values)
+            cursor.execute(comand2, values2)
             connection.commit()
             print("Atualização realizada com sucesso!")
         else:
             print(f"Erro: CPF {cpf} não encontrado. Client não atualizado.")
     except Exception as e:
-        print(f"Erro ao atualizar client: {str(e)}")
+        print(f"Erro ao atualizar client: {str(e)}")
 
 # Deletar um client
 def delete_client(tree, clear_entries_callback):
