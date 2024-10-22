@@ -1,4 +1,3 @@
-from decimal import Decimal
 from database import init_connection
 from tkinter import messagebox
 from crud_person_operations import create_person
@@ -10,20 +9,14 @@ cursor = connection.cursor()
 # Função para criar o employees, garantindo que o CPF exista na tabela 'person'
 def create_employees(cpf, cargo, senha):
     try:
-        # Verificar se o CPF existe na tabela 'person'
-        cursor.execute("SELECT CPF FROM person WHERE CPF = %s", (cpf,))
-        person = cursor.fetchone()
+        comand = 'INSERT INTO employees (CPF, position, password) VALUES (%s, %s, %s)'
+        values = (cpf, cargo, senha)
+        cursor.execute(comand, values)
+        connection.commit()
+        messagebox.showinfo("Sucesso", "funcionario criado com sucesso!")
 
-        if person:
-            comand = 'INSERT INTO employees (CPF, position, password) VALUES (%s, %s, %s)'
-            values = (cpf, cargo, senha)
-            cursor.execute(comand, values)
-            connection.commit()
-            print(f"Employees {cpf} criado com sucesso!")
-        else:
-            print(f"Erro: CPF {cpf} não encontrado. Employees não será criado.")
     except Exception as e:
-        print(f"Erro ao criar employees: {str(e)}")
+        messagebox.showinfo("ERRO AO CRIAR FUNCIONARII")
 
 # Ver as informações do employees
 def list_employeers(tree):
@@ -65,7 +58,7 @@ def search_employeer(search_term, tree):
             for record in records:
                 tree.insert("", "end", values=record)
         else:
-            print("Nenhum registro encontrado.")  # Mensagem de depuração
+            messagebox.showinfo("Nenhum registro encontrado!")  # Mensagem de depuração
             
     else:
         list_employeers(tree)
@@ -86,11 +79,11 @@ def update_employees(id, name, cpf, email, telefone, position, password):
             cursor.execute(comand, values)
             cursor.execute(comand2, values2)
             connection.commit()
-            print("Atualização realizada com sucesso!")
+            messagebox.showinfo("Sucesso", "funcionario atualizado com sucesso!")
         else:
             print(f"Erro: CPF {cpf} não encontrado. Client não atualizado.")
     except Exception as e:
-        print(f"Erro ao atualizar client: {str(e)}")
+        messagebox.showinfo("ERRO AO ATUALIZAR FUNCIONARIO")
 
 # Deletar um employees
 def delete_employees(tree, clear_entries_callback):
@@ -127,9 +120,84 @@ def create_employeers(cpf, nome, email, telefone, position, password):
     except Exception as e:
         print(f"Erro ao criar pessoa e client: {str(e)}")
 
+# Função para autenticar o funcionário usando CPF ou email
+def authenticate_employee(login, password):
+    try:
+        # Verificar se o login é um email ou um CPF
+        if "@" in login:  # Se o login contiver '@', é um email
+            cursor.execute("SELECT * FROM employees e JOIN person p ON e.CPF = p.CPF WHERE p.Email = %s AND e.password = %s", (login, password))
+        else:  # Caso contrário, considera como CPF
+            cursor.execute("SELECT * FROM employees WHERE CPF = %s AND password = %s", (login, password))
+        
+        employee = cursor.fetchone()
+        
+        if employee:
+            messagebox.showinfo("Sucesso", "Login bem-sucedido!")
+            return employee
+        else:
+            messagebox.showerror("Erro", "CPF/Email ou senha inválidos.")
+            return None
+    except Exception as e:
+        print(f"Erro ao autenticar funcionário: {str(e)}")
+        messagebox.showerror("Erro", "Erro ao realizar login.")
+        return None
+
+
+def generate_monthly_report_employ(month, year):
+    query = """
+    SELECT p.name AS employee_name, 
+       count(s.id_sale) AS total_sales, 
+       SUM(s.total_value) AS total_revenue
+    FROM sales s
+    JOIN employees e ON s.id_employee = e.id_employees
+    JOIN person p ON e.cpf = p.cpf
+    WHERE MONTH(s.sale_date) = %s
+        AND YEAR(s.sale_date) = %s
+    GROUP BY p.name;
+    """
+    
+    cursor.execute(query, (month, year))
+    result = cursor.fetchall()
+    
+    return result
+
+def get_employee_sales_details(employee_name):
+    conn = init_connection()
+    cursor = conn.cursor()
+
+    # Consulta SQL para obter os detalhes das vendas associadas ao funcionário
+    query = """
+    SELECT c.id_client AS cliente, s.total_value AS total_compra, s.payment_status, s.sale_date
+    FROM sales s
+    JOIN client c ON s.id_client = c.id_client
+    JOIN employees e ON s.id_employee = e.id_employees
+    LEFT JOIN person p ON e.cpf = p.cpf
+    WHERE p.name = %s
+    ORDER BY s.sale_date DESC
+    """
+    
+    cursor.execute(query, (employee_name,))
+    result = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    # Retorna os detalhes das vendas: nome do cliente, total da compra, status de pagamento e data
+    return result
+
+def get_employee_id_by_cpf(cpf):
+    command ='''
+            SELECT id_employees
+            FROM employees e
+            WHERE e.cpf = %s
+            '''
+    cursor.execute(command, (cpf,))
+    employ = cursor.fetchall()
+    return employ[0][0]
+
 # Fechar conexão ao encerrar o script
 def close_connection():
     cursor.close()
     connection.close()
 
-# Chame close_connection quando não for mais necessário
+
