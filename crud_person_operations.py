@@ -1,6 +1,4 @@
-from decimal import Decimal
 from database import init_connection
-from tkinter import messagebox
 
 # Abre a conexão com o banco de dados
 connection = init_connection()
