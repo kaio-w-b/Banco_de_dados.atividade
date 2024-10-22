@@ -1,6 +1,6 @@
 from tkinter import *
 from tkinter import messagebox, ttk
-from crud_client_operations import create_clients, search_client, list_clients, update_client, delete_client
+from crud_client_operations import create_clients, search_client, list_clients, update_client, delete_client, close_connection
 
 def client_window():
     main_window = Tk()
@@ -33,32 +33,37 @@ def client_window():
     telefone_entry = Entry(main_window, font=('Arial', 12), relief=FLAT, bd=2)
     telefone_entry.grid(column=1, row=3, padx=10, pady=5, sticky='ew')
 
+    Label(main_window, text="Senha:", bg='#f5f5f5', font=('Arial', 12)).grid(column=0, row=4, padx=10, pady=5, sticky='e')
+    global Senha_entry
+    Senha_entry = Entry(main_window, font=('Arial', 12), relief=FLAT, bd=2)
+    Senha_entry.grid(column=1, row=4, padx=10, pady=5, sticky='ew')
     
-    Label(main_window, text="Fã de One Piece:", bg='#f5f5f5', font=('Arial', 12)).grid(column=0, row=4, padx=10, pady=5, sticky='e')
+    Label(main_window, text="Fã de One Piece:", bg='#f5f5f5', font=('Arial', 12)).grid(column=0, row=5, padx=10, pady=5, sticky='e')
     global one_piece_fan_var
     one_piece_fan_var = IntVar()
-    Radiobutton(main_window, text="Sim", variable=one_piece_fan_var, value=1, font=('Arial', 12)).grid(column=1, row=4, padx=10, pady=5, sticky='w')
-    Radiobutton(main_window, text="Não", variable=one_piece_fan_var, value=0, font=('Arial', 12)).grid(column=2, row=4, padx=10, pady=5, sticky='w')
+    Radiobutton(main_window, text="Sim", variable=one_piece_fan_var, value=1, font=('Arial', 12)).grid(column=1, row=5, padx=10, pady=5, sticky='w')
+    Radiobutton(main_window, text="Não", variable=one_piece_fan_var, value=0, font=('Arial', 12)).grid(column=2, row=5, padx=10, pady=5, sticky='w')
 
     
-    Label(main_window, text="Flamenguista:", bg='#f5f5f5', font=('Arial', 12)).grid(column=0, row=5, padx=10, pady=5, sticky='e')
+    Label(main_window, text="Flamenguista:", bg='#f5f5f5', font=('Arial', 12)).grid(column=0, row=6, padx=10, pady=5, sticky='e')
     global flamenguista_var 
     flamenguista_var = IntVar()
-    Radiobutton(main_window, text="Sim", variable=flamenguista_var, value=1, font=('Arial', 12)).grid(column=1, row=5, padx=10, pady=5, sticky='w')
-    Radiobutton(main_window, text="Não", variable=flamenguista_var, value=0, font=('Arial', 12)).grid(column=2, row=5, padx=10, pady=5, sticky='w')
+    Radiobutton(main_window, text="Sim", variable=flamenguista_var, value=1, font=('Arial', 12)).grid(column=1, row=6, padx=10, pady=5, sticky='w')
+    Radiobutton(main_window, text="Não", variable=flamenguista_var, value=0, font=('Arial', 12)).grid(column=2, row=6, padx=10, pady=5, sticky='w')
 
     
-    Label(main_window, text="De Sousa:", bg='#f5f5f5', font=('Arial', 12)).grid(column=0, row=6, padx=10, pady=5, sticky='e')
+    Label(main_window, text="De Sousa:", bg='#f5f5f5', font=('Arial', 12)).grid(column=0, row=7, padx=10, pady=6, sticky='e')
     global de_sousa_var
     de_sousa_var = IntVar()
-    Radiobutton(main_window, text="Sim", variable=de_sousa_var, value=1, font=('Arial', 12)).grid(column=1, row=6, padx=10, pady=5, sticky='w')
-    Radiobutton(main_window, text="Não", variable=de_sousa_var, value=0, font=('Arial', 12)).grid(column=2, row=6, padx=10, pady=5, sticky='w')
-    
+    Radiobutton(main_window, text="Sim", variable=de_sousa_var, value=1, font=('Arial', 12)).grid(column=1, row=7, padx=10, pady=5, sticky='w')
+    Radiobutton(main_window, text="Não", variable=de_sousa_var, value=0, font=('Arial', 12)).grid(column=2, row=7, padx=10, pady=5, sticky='w')
+
     def clear_entries():
         name_entry.delete(0, END)
         telefone_entry.delete(0, END)
         cpf_entry.delete(0, END)
         email_entry.delete(0, END)
+        Senha_entry.delete(0,END)
         one_piece_fan_var.set(0) 
         flamenguista_var.set(0)  
         de_sousa_var.set(0)  
@@ -68,10 +73,12 @@ def client_window():
         cpf = cpf_entry.get()
         email = email_entry.get()
         telefone = telefone_entry.get()
+        senha = Senha_entry.get()
         OP = one_piece_fan_var.get()
         mengo = flamenguista_var.get()
         sousa = de_sousa_var.get()
-        create_clients(cpf,name, email, telefone, OP, mengo, sousa)
+        create_clients(cpf,name, email, telefone, OP, mengo, sousa, senha)
+        list_clients(tree)
 
     def on_search_cliente():
         search_term = search_entry.get()
@@ -110,7 +117,7 @@ def client_window():
                 update_phone_entry = Entry(sub_window, font=('Arial', 12), relief=FLAT, bd=2)
                 update_phone_entry.grid(column=1, row=3, padx=10, pady=5, sticky='ew')
                 update_phone_entry.insert(0, values[4])
-
+                
                 # Radiobuttons para "Fã de One Piece"
                 Label(sub_window, text="Fã de One Piece:", bg='#f5f5f5', font=('Arial', 12)).grid(column=0, row=4, padx=10, pady=5, sticky='e')
                 update_one_piece_fan_var = IntVar()
@@ -132,6 +139,11 @@ def client_window():
                 Radiobutton(sub_window, text="Não", variable=update_de_sousa_var, value=0, font=('Arial', 12)).grid(column=2, row=6, padx=10, pady=5, sticky='w')
                 update_de_sousa_var.set(values[7])  # Definir o valor atual
 
+                Label(sub_window, text="Senha:", bg='#f5f5f5', font=('Arial', 12)).grid(column=0, row=7, padx=10, pady=5, sticky='e')
+                update_senha_entry = Entry(sub_window, font=('Arial', 12), relief=FLAT, bd=2)
+                update_senha_entry.grid(column=1, row=7, padx=10, pady=5, sticky='ew')
+                update_senha_entry.insert(0, values[8])
+
                 # Função para salvar o cliente atualizado
                 def save_updated_client():
                     new_name = update_name_entry.get()
@@ -140,18 +152,19 @@ def client_window():
                     new_phone = update_phone_entry.get()
                     new_one_piece_fan = update_one_piece_fan_var.get()
                     new_flamenguista = update_flamenguista_var.get()
+                    new_senha = update_senha_entry.get()
                     new_de_sousa = update_de_sousa_var.get()
                     client_id = values[0]
                     # Chamar a função de atualização do cliente
-                    update_client(client_id, new_name, new_cpf, new_email, new_phone, new_one_piece_fan, new_flamenguista, new_de_sousa)
+                    update_client(client_id, new_name, new_cpf, new_email, new_phone, new_one_piece_fan, new_flamenguista, new_de_sousa, new_senha)
                     list_clients(tree)  # Refresh the list
 
 
-                Button(sub_window, text="Salvar Alterações", command=save_updated_client, font=('Arial', 10), bg='#4caf50', fg='White', relief=FLAT).grid(column=0, row=7, padx=5, pady=20, sticky='e')
+                Button(sub_window, text="Salvar Alterações", command=save_updated_client, font=('Arial', 10), bg='#4caf50', fg='White', relief=FLAT).grid(column=1, row=8, padx=5, pady=20, sticky='e')
                 sub_window.mainloop()
 
         except IndexError:
-            messagebox.showerror("Erro", "Selecione um scliente para atualizar!")
+            messagebox.showerror("Erro", "Selecione um cliente para atualizar!")
 
     def on_delete_client():
         delete_client(tree, clear_entries)
@@ -190,4 +203,4 @@ def client_window():
     list_clients(tree)
     main_window.mainloop()
 
-
+    close_connection()
