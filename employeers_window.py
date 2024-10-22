@@ -1,6 +1,6 @@
 from tkinter import *
 from tkinter import messagebox, ttk
-from crud_employees_operations import create_employeers, search_employeer, list_employeers, update_employees, delete_employees
+from crud_employees_operations import create_employeers, search_employeer, list_employeers, update_employees, delete_employees, close_connection
 
 def employees_window():
     main_window = Tk()
@@ -62,6 +62,7 @@ def employees_window():
         carg = cargo_entry.get()
         sen = senha_entry.get()
         create_employeers(cpf,name, email, telefone, carg, sen)
+        list_employeers(tree)
 
     def on_search_employee():
         search_term = search_entry.get()
@@ -133,6 +134,7 @@ def employees_window():
 
     def on_delete_employee():
         delete_employees(tree, clear_entries)
+        list_employeers(tree)
 
     # Botões CRUD
     Button(main_window, text="Adicionar Funcionario", command=on_create_employees, font=('Arial', 10), bg='#4caf50', fg='white', relief=FLAT).grid(column=1, row=7, padx=5, pady=10)
@@ -165,3 +167,5 @@ def employees_window():
     # Carregar produtos existentes
     list_employeers(tree)
     main_window.mainloop()
+
+    close_connection()
